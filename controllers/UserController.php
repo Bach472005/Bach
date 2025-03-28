@@ -30,14 +30,16 @@
 
 
         // REGISTER
-        public function register_view(){
+        public function register_view() {
             require_once './views/User/register.php';
         }
         public function register(){
-        
+            
+            // echo "<script> console.log('". $_POST["name"] ."') </script>";
+
             if (empty($_POST["name"]) || empty($_POST["email"]) || empty($_POST["password"]) || empty($_POST["verify_password"])) {
                 echo "<script> alert('❌ Không được để trống bất kỳ trường nào!'); </script>";
-                return;
+                return 0;
             }
 
             $name = htmlspecialchars($_POST["name"], ENT_QUOTES, 'UTF-8');
@@ -78,8 +80,11 @@
             ];
             try {
                 $this->userModel->register($user);
-                echo "<script> alert('✅ Đăng ký thành công!'); </script>";
-                return $this->login_view();
+                echo "<script>
+                        alert('✅ Đăng ký thành công!');
+                        window.location.href='views/Login.php';
+                    </script>";
+                exit(); // Dừng script ngay sau khi chuyển hướng
             } catch (\Throwable $th) {
                 echo "<script> alert('❌ Lỗi hệ thống: " . addslashes($th->getMessage()) . "'); </script>";
                 return;
@@ -117,10 +122,16 @@
         
             // Đăng nhập thành công, lưu session
             $_SESSION["user"] = $user;
-        
-            $redirectUrl = ($user["role"] == 0) ? '/' : '/admin';
+
+            $redirectUrl = ($user["role"] == 0) ? '/Project_1' : '/Project_1/admin';
             echo "<script>alert('✅ Đăng nhập thành công!'); window.location.href='$redirectUrl';</script>";
             exit(); // Dừng script để tránh load lại trang không cần thiết
+        }
+        public function log_out(){
+            unset($_SESSION["user"]);
+            echo "<script>alert('✅ Đăng xuất thành công!')</script>";
+
+            return $this->login_view();
         }
         
         public function __destruct(){

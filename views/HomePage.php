@@ -10,16 +10,18 @@
 </head>
 
 <body>
-    <?php include('./views/components/navbar.php'); ?>
+    <?php ; 
+    include('./views/components/header.php');
+    include('./views/components/navbar.php');
+    include('./views/components/footer.php');
+    
+    
+    ?>
 
-    <div class="container">
-        <div class="row">
-            <h1 class="mb-5">Trang chủ client</h1>
+    <?php var_dump($_SESSION["user"]) ?>;
 
-            <h3>Top 5 sản phẩm mới nhất</h3>
-            
-        </div>
-    </div>
+
+   
 </body>
 
 </html>

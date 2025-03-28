@@ -46,7 +46,7 @@
         public $conn;
 
         public function get_user_email($email){
-            $sql = "SELECT email, password, role, status FROM users where email = :email";
+            $sql = "SELECT * FROM users where email = :email";
             $data = $this->conn->prepare($sql);
             $data->bindParam(":email", $email);
             $data->execute();
@@ -56,6 +56,9 @@
         public function register($user){
             $sql = "INSERT INTO users (name, email, password) VALUES (:name, :email, :password)";
             $data = $this->conn->prepare($sql);
+            $data->bindParam(":name", $user["name"]);
+            $data->bindParam(":email", $user["email"]);
+            $data->bindParam(":password", $user["password"]);
             $data->execute();
         }
     }
