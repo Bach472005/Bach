@@ -21,6 +21,10 @@
             $this->userModel->update_user_status($id, $status);
             return $this->get_user();
         }
+        public function get_order(){
+            $orders = $this->userModel->get_order();
+            require_once "./views/User/UserOrder.php";
+        }
         public function __destruct(){
             $this->userModel = null;
         }

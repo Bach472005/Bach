@@ -108,13 +108,13 @@
 
         public function update_product($id, $new){
             if($this->conn){
-                $sql = "UPDATE products SET id = :id, category_id = :category_id, name = :name, description = :description, price = :price, quantity = :quantity WHERE id = :id";
+                $sql = "UPDATE products SET id = :id, category_id = :category_id, name = :name, description = :description, price = :price WHERE id = :id";
                 $data = $this->conn->prepare($sql);
                 $data->bindParam(":category_id", $new["category_id"]);
                 $data->bindParam(":name", $new["name"]);
                 $data->bindParam(":description", $new["description"]);
                 $data->bindParam(":price", $new["price"]);
-                $data->bindParam(":quantity", $new["quantity"]);
+                // $data->bindParam(":quantity", $new["quantity"]);
                 $data->bindParam(":id", $id);
 
                 $data->execute();

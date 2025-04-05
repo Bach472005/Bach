@@ -77,7 +77,7 @@
   <!-- Form Đăng Ký / Đăng Nhập -->
   <div class="form-container">
 
-    <form action="<?php echo BASE_URL . 'index.php?act=login' ?>" method="POST">
+    <form action="<?php echo BASE_URL . '?act=login' ?>" method="POST">
       <h2>Đăng Nhập</h2>
       <div class="form-group">
         <label for="login-username">Email</label>

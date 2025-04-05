@@ -54,22 +54,34 @@
                 ];
 
                 $this->productModel->add_image($Images);
-                echo "<script>alert('Add product success!!!') </script>";
-                return $this->get_product();
+                // echo "<script>alert('Add product success!!!') </script>";
+                echo "<script> 
+                        alert('Add Success');
+                        window.location.href = '". BASE_URL ."/admin';
+                      </script>";
+                // return $this->get_product();
             } else{
                 echo "<script>alert('Add product fail!!!') </script>"; 
             }
-
-            
         }
 
         // Delete product
         public function deleteProduct(){
-            if(isset($_GET["id"])){
-                $id = $_GET["id"];
-                $this->productModel->delete_product($id);
+            try {
+                if(isset($_GET["id"])){
+                    $id = $_GET["id"];
+                    $this->productModel->delete_product($id);
+                }
+                echo "<script> 
+                        alert('Delete Success');
+                        window.location.href = '". BASE_URL ."/admin';
+                        </script>";
+            } catch (\Throwable $th) {
+                echo "<script> 
+                        alert('". htmlspecialchars($th->getMessage()) ."'); 
+                    </script>";
             }
-            return $this->get_product();   
+            // return $this->get_product();   
         }
 
         // Update product 
@@ -116,8 +128,7 @@
                 "category_id" => $_POST["category_id"],
                 "name"=> $_POST["name"],
                 "description" => $_POST["description"],
-                "price" => $_POST["price"],
-                "quantity" => $_POST["quantity"]
+                "price" => $_POST["price"]
             ];
             if(isset($id, $new)){
                 $this->productModel->update_product($id, $new);
@@ -143,7 +154,8 @@
         }
         public function get_category(){
             $categories = $this->CategoryModel->get_list();
-
+            $sizes = $this->CategoryModel->get_table("sizes");
+            $colors = $this->CategoryModel->get_table("colors");
             require_once './views/Category/List.php';
         }
 

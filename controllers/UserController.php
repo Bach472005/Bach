@@ -134,7 +134,73 @@
             return $this->login_view();
         }
         
+        // Cart
+        public function cart_view(){
+            if(isset($_SESSION["user"]["id"])){
+                $carts = $this->userModel->get_cart($_SESSION["user"]["id"]);
+                    
+                require_once "./views/User/Cart.php";
+            } else {
+                    echo "<script>
+                            alert('Bạn chưa đăng nhập nên không xem được giỏ hàng!');
+                            window.location.href = '" . BASE_URL . "?act=login_view';
+                        </script>";
+
+                
+            }
+            
+        }
+        public function add_to_cart(){
+            return 0;
+        }
+
+        public function delete_cart(){
+            return 0;
+        }
+
+        public function order(){
+            if(isset($_GET["cart_detail_id"])){
+                $cart = $this->userModel->get_cart_id($_GET["cart_detail_id"]);
+                // $product = $this->userModel->get_cart_id
+
+                $_SESSION["cart_order"] = [];
+                $_SESSION["cart_order"][] = $cart;
+                require_once "./views/User/Order.php";
+            }
+        }
+        public function order_id() {
+            if(isset($_SESSION["user"])){
+                $order = $this->userModel->get_order_by_id($_SESSION["user"]["id"]);
+
+                require_once "./views/User/UserOrder.php";
+            }
+        }
+        public function add_orders(){
+            $order = [
+                "user_id" => $_SESSION["user"]["id"],
+                "payment_method" => $_POST["payment_method"],
+                "receiver_name" => $_POST["receiver_name"],
+                "receiver_phone" => $_POST["receiver_phone"],
+                "receiver_address" => $_POST["receiver_address"],
+                "receiver_note" => $_POST["receiver_note"],   
+            ];
+            
+            foreach ($_SESSION["cart_order"] as $cart_order) {
+                $order_details = [
+                    "product_detail_id" => $cart_order["product_detail_id"],
+                    "price" => $cart_order["price"],
+                    "quantity" => $cart_order["quantity"],
+                ];
+            }
+            $this->userModel->add_orders($order, $order_details);
+
+            echo "<script>
+                    alert('Đặt hàng thành công!');
+                    window.location.href = '" . BASE_URL . "';
+                </script>";
+        }
         public function __destruct(){
             $this->userModel = null;
+            $this->productModel = null;
         }
     }
