@@ -64,6 +64,6 @@ match ($act) {
 
     // Comment
     "get_comment" => (new CommentController()) -> get_comment(),
-
+    "delete_comment" => (new CommentController()) -> delete_comment(),
     default => require_once './views/404.php', // Trang lỗi 404
 };

@@ -104,7 +104,7 @@
                                 <tbody>
                                     <tr>
                                         <?php foreach ($week_revenue as $revenue) : ?>
-                                            <td><?php echo number_format($revenue); ?> triệu</td>
+                                            <td><?php echo number_format($revenue); ?> VNĐ</td>
                                         <?php endforeach; ?>
                                     </tr>
                                 </tbody>

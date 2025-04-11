@@ -41,12 +41,18 @@ match ($act) {
 
     // CART
     'cart_view' => (new UserController()) -> cart_view(),
-    
+    'add_to_cart' => (new UserController()) -> add_to_cart(),
+    'delete_cart' => (new UserController()) -> delete_cart(),
+
     // ORDER
     'order' => (new UserController()) -> order(),
     'order_id' => (new UserController()) -> order_id(),
     'add_orders' => (new UserController()) -> add_orders(),
-    
+    'cancelled_order' => (new UserController()) -> cancelled_order(),
+    'delete_order' => (new UserController()) -> delete_order(),
+
+    // COMMENT
+    'post_comment' => (new ProductController()) -> post_comment(),
 
     default => require_once './views/components/404.php', // Trang lỗi 404
 };

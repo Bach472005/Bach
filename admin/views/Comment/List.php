@@ -118,7 +118,7 @@
                             </td>
                             <td><?= $comment["comment"]; ?></td>
                             <td><?= $comment["date"]; ?></td>
-                            <td><button class="btn btn-danger">Xóa</button></td>
+                            <td><button class="btn btn-danger"><a style="color:white; text-decoration:none" href="<?= BASE_URL_ADMIN . "?act=delete_comment&comment_id=" . $comment["id"] ?>">Xóa</a></button></td>
                         </tr>
                     <?php } ?>
                 </tbody>

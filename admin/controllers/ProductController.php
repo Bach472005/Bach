@@ -57,7 +57,7 @@
                 // echo "<script>alert('Add product success!!!') </script>";
                 echo "<script> 
                         alert('Add Success');
-                        window.location.href = '". BASE_URL ."/admin';
+                        window.location.href = '". BASE_URL ."/admin/?act=get_product';
                       </script>";
                 // return $this->get_product();
             } else{
@@ -74,7 +74,7 @@
                 }
                 echo "<script> 
                         alert('Delete Success');
-                        window.location.href = '". BASE_URL ."/admin';
+                        window.location.href = '". BASE_URL ."/admin/?act=get_product';
                         </script>";
             } catch (\Throwable $th) {
                 echo "<script> 

@@ -13,4 +13,16 @@ class CommentController
 
         require_once './views/Comment/List.php';
     }
+    public function delete_comment() {
+        if(isset($_GET["comment_id"])){
+            $comment_id = $_GET["comment_id"];
+            $this->commentModel->delete_comment($comment_id);
+            echo "<script> 
+                        alert('Delete Success');
+                        setTimeout(function(){
+                            window.location.href = '?act=get_comment';
+                        }, 1000); 
+                      </script>";
+        }
+    }
 }

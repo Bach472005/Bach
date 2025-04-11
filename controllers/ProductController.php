@@ -26,8 +26,17 @@
             }
         }
         public function post_comment(){
-            if(isset($_GET["product_id"]) || isset($_SESSION["user"])){
-                return 0;
+            if(isset($_GET["product_id"]) || isset($_SESSION["user"]["id"])){
+                $product_id = $_GET["product_id"];
+                $user_id = $_SESSION["user"]["id"];
+                $rating = $_POST["rating"];
+                $comment = $_POST["comment"];
+                $this->commentModel->post_comment($product_id, $user_id, $rating, $comment);
+
+                echo "<script>
+                    alert('Đăng bài thành công!');
+                    window.location.href = '" . BASE_URL . "?act=pd&product_id=". $product_id ."';
+                  </script>";
             }
         }
         public function delete_comment(){

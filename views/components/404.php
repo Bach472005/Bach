@@ -5,7 +5,7 @@
             <h2 class="display-1 fw-bold">404</h2>
             <h2 class="mb-4">Không tìm thấy trang</h2>
             <h2>Rất tiếc,trang bạn tìm kiếm không tồn tại</h2>
-            <a href="btn btn-primary rounded-pill py-3 px-5 " href="">Quay lại trang chủ</a>
+            <a class="btn btn-primary rounded-pill py-3 px-5 " href="<?php echo BASE_URL ?>">Quay lại trang chủ</a>
         </div>
     </div>
 </div>

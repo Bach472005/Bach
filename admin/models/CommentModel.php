@@ -18,5 +18,11 @@ class CommentModel extends Connect
         $data->execute();
         return $data->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function delete_comment($id){
+        $sql = "DELETE from comments where id = :id";
+        $data = $this->conn->prepare($sql);
+        $data->bindParam(":id", $id, PDO::PARAM_INT);
+        $data->execute();
+    }
     
 }

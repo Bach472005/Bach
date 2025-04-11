@@ -118,13 +118,73 @@
 
             return $data->fetch(PDO::FETCH_ASSOC);
         }
-
-        public function get_order_by_id($id){
+        public function get_cart_id_by_user($user_id) {
+            $sql = "SELECT id FROM cart WHERE user_id = :user_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(":user_id", $user_id);
+            $stmt->execute();
+            return $stmt->fetchColumn(); // chỉ trả về cart_id
+        }
+        // Check xem sản phẩm đã có trong giỏ hàng chưa
+        public function get_cart_item($cart_id, $product_detail_id) {
+            $sql = "SELECT * FROM cart_details 
+                    WHERE cart_id = :cart_id AND product_detail_id = :product_detail_id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                ':cart_id' => $cart_id,
+                ':product_detail_id' => $product_detail_id
+            ]);
+            return $stmt->fetch(PDO::FETCH_ASSOC); // Trả về mảng nếu tìm thấy, hoặc false
+        }
+        
+        // Tạo mới giỏ hàng nếu chưa có
+        public function create_cart($user_id) {
+            $sql = "INSERT INTO cart (user_id) VALUES (:user_id)";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(":user_id", $user_id);
+            $stmt->execute();
+            return $this->conn->lastInsertId();
+        }
+        
+        // Thêm sản phẩm vào chi tiết giỏ hàng
+        public function add_cart_detail($cart_detail) {
+            $sql = "INSERT INTO cart_details (cart_id, product_detail_id, quantity, price) VALUES (:cart_id, :product_detail_id, :quantity, :price)";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(":cart_id", $cart_detail["cart_id"]);
+            $stmt->bindParam(":product_detail_id", $cart_detail["product_detail_id"]);
+            $stmt->bindParam(":quantity", $cart_detail["quantity"]);
+            $stmt->bindParam(":price", $cart_detail["price"]);
+            $stmt->execute();
+        }
+        
+        // Xóa 1 sản phẩm khỏi giỏ
+        public function delete_cart_detail($cart_detail_id) {
+            $sql = "DELETE FROM cart_details WHERE id = :id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(":id", $cart_detail_id);
+            $stmt->execute();
+        }
+        // UPDATE cart quantity
+        public function update_cart_item_quantity($cart_id, $product_detail_id, $new_quantity) {
+            $sql = "UPDATE cart_details 
+                    SET quantity = :quantity 
+                    WHERE cart_id = :cart_id AND product_detail_id = :product_detail_id";
+            $stmt = $this->conn->prepare($sql);
+            return $stmt->execute([
+                ':quantity' => $new_quantity,
+                ':cart_id' => $cart_id,
+                ':product_detail_id' => $product_detail_id
+            ]);
+        }
+        
+        // ORDER
+        public function get_order_by_user_id($id){
             $sql = "SELECT
                         od.quantity,
                         od.price,
                         o.id as order_id,
                         o.status, 
+                        o.created_at,
                         s.size_name,
                         cl.color_name,
                         cl.color_code,
@@ -138,35 +198,64 @@
                     JOIN products p ON pd.product_id = p.id
                     LEFT JOIN images i ON i.product_id = p.id
                     WHERE o.user_id = :user_id
-                    GROUP BY od.quantity, od.price, o.id, o.status, s.size_name, cl.color_name, cl.color_code, p.name";
+                    GROUP BY od.quantity, od.price, o.id, o.status, o.created_at, s.size_name, cl.color_name, cl.color_code, p.name";
             $data = $this->conn->prepare($sql);
             $data->bindParam(":user_id", $id);
             $data->execute();
             return $data->fetchAll(PDO::FETCH_ASSOC);
         }
         
-        public function add_orders($order, $order_details){
-            $sql = "INSERT INTO orders (user_id, payment_method, receiver_name, receiver_phone, receiver_address, receiver_note) values (:user_id, :payment_method, :receiver_name, :receiver_phone, :receiver_address, :receiver_note)";
-            $data = $this->conn->prepare($sql);
-
-            $data->bindParam(":user_id", $order["user_id"]);
-            $data->bindParam(":payment_method", $order["payment_method"]);
-            $data->bindParam(":receiver_name", $order["receiver_name"]);
-            $data->bindParam(":receiver_phone", $order["receiver_phone"]);
-            $data->bindParam(":receiver_address", $order["receiver_address"]);
-            $data->bindParam(":receiver_note", $order["receiver_note"]);
-            $data->execute();
-
-            // Get the ID of the last inserted order
+        public function add_orders($order, $order_details_list) {
+            // Insert vào bảng orders
+            $sql = "INSERT INTO orders (user_id, payment_method, receiver_name, receiver_phone, receiver_address, receiver_note) 
+                    VALUES (:user_id, :payment_method, :receiver_name, :receiver_phone, :receiver_address, :receiver_note)";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute($order);
+        
             $orderId = $this->conn->lastInsertId();
-
-            $sql_order_details = "INSERT INTO order_details (order_id, product_detail_id, quantity, price) values (:order_id, :product_detail_id, :quantity, :price)";
-            $data_order_details = $this->conn->prepare($sql_order_details);
-            $data_order_details->bindParam(":order_id", $orderId);
-            $data_order_details->bindParam(":product_detail_id", $order_details["product_detail_id"]);
-            $data_order_details->bindParam(":quantity", $order_details["quantity"]);
-            $data_order_details->bindParam(":price", $order_details["price"]);
-            $data_order_details->execute();
-
+        
+            // Insert từng sản phẩm vào order_details
+            $sql_detail = "INSERT INTO order_details (order_id, product_detail_id, quantity, price) 
+                           VALUES (:order_id, :product_detail_id, :quantity, :price)";
+            $stmt_detail = $this->conn->prepare($sql_detail);
+        
+            foreach ($order_details_list as $detail) {
+                $stmt_detail->execute([
+                    ":order_id" => $orderId,
+                    ":product_detail_id" => $detail["product_detail_id"],
+                    ":quantity" => $detail["quantity"],
+                    ":price" => $detail["price"]
+                ]);
+            }
         }
+        
+        public function get_status_order_by_id($order_id) {
+            $sql = "SELECT status FROM orders WHERE id = :id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':id', $order_id, PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+            return $result ? $result['status'] : null;
+        }
+        public function cancelled_order($order_id){
+            $sql = "UPDATE `orders` SET status = :status WHERE id = :id";
+            $stmt = $this->conn->prepare($sql);
+            
+            $status = "Cancelled";
+            $stmt->bindParam(':status', $status);
+            $stmt->bindParam(':id', $order_id, PDO::PARAM_INT);
+            
+            $stmt->execute();
+            return $stmt->rowCount() > 0;
+        }
+        public function delete_order($order_id){
+            $sql = "DELETE orders where id = :id";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindParam(':id', $order_id, PDO::PARAM_INT);
+            
+            $stmt ->execute();
+            return $stmt->rowCount() > 0;
+        }
+        
     }
