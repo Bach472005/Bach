@@ -90,7 +90,7 @@ class UserController
             $this->userModel->register($user);
             echo "<script>
                         alert('✅ Đăng ký thành công!');
-                        window.location.href='views/Login.php';
+                            window.location.href = '" . BASE_URL . "?act=login_view';
                     </script>";
             exit(); // Dừng script ngay sau khi chuyển hướng
         } catch (\Throwable $th) {
@@ -167,11 +167,19 @@ class UserController
             echo "<script>alert('Bạn cần đăng nhập để thêm vào giỏ hàng!'); window.location.href='" . BASE_URL . "?act=login_view';</script>";
             return;
         }
+
         if (isset($_POST["product_detail_id"]) && isset($_POST["quantity"]) && isset($_POST["price"])) {
             $user_id = $_SESSION["user"]["id"];
             $product_detail_id = $_POST["product_detail_id"];
-            $quantity = $_POST["quantity"];
+            $quantity = (int) $_POST["quantity"];
             $price = $_POST["price"];
+
+            // Lấy số lượng tồn kho
+            $stock_quantity = $this->userModel->get_stock_quantity($product_detail_id);
+            if ($stock_quantity === null) {
+                echo "<script>alert('Không tìm thấy thông tin sản phẩm!'); window.history.back();</script>";
+                return;
+            }
 
             // Kiểm tra giỏ hàng đã tồn tại chưa
             $cart_id = $this->userModel->get_cart_id_by_user($user_id);
@@ -179,16 +187,24 @@ class UserController
                 $cart_id = $this->userModel->create_cart($user_id);
             }
 
-            // Thêm chi tiết vào giỏ
             // Kiểm tra sản phẩm đã có trong giỏ chưa
             $existing_item = $this->userModel->get_cart_item($cart_id, $product_detail_id);
+            $current_quantity_in_cart = $existing_item ? $existing_item["quantity"] : 0;
 
+            // Tổng số lượng sau khi thêm
+            $total_quantity_after_add = $current_quantity_in_cart + $quantity;
+
+
+            if ($total_quantity_after_add > $stock_quantity) {
+                echo "<script>alert('❌ Số lượng bạn thêm vượt quá số lượng tồn kho!'); window.history.back();</script>";
+
+                return;
+            }
+
+            // Nếu hợp lệ, tiến hành thêm hoặc cập nhật
             if ($existing_item) {
-                // Nếu đã có thì cập nhật số lượng
-                $new_quantity = $existing_item["quantity"] + $quantity;
-                $this->userModel->update_cart_item_quantity($cart_id, $product_detail_id, $new_quantity);
+                $this->userModel->update_cart_item_quantity($cart_id, $product_detail_id, $total_quantity_after_add);
             } else {
-                // Nếu chưa có thì thêm mới
                 $this->userModel->add_cart_detail([
                     "cart_id" => $cart_id,
                     "product_detail_id" => $product_detail_id,
@@ -196,13 +212,12 @@ class UserController
                     "price" => $price
                 ]);
             }
-            echo "<script>alert('✅ Đã thêm vào giỏ hàng!');
-                                window.location.href = '" . BASE_URL . "?act=cart_view';
-                        </script>";
+            echo "<script>alert('✅ Đã thêm vào giỏ hàng!'); window.location.href = '" . BASE_URL . "?act=cart_view';</script>";
         } else {
             echo "<script>alert('❌ Thiếu thông tin sản phẩm để thêm vào giỏ hàng!'); window.history.back();</script>";
         }
     }
+
 
     public function delete_cart()
     {
@@ -241,34 +256,189 @@ class UserController
 
     public function add_orders()
     {
-        $order = [
-            "user_id" => $_SESSION["user"]["id"],
-            "payment_method" => $_POST["payment_method"],
-            "receiver_name" => $_POST["receiver_name"],
-            "receiver_phone" => $_POST["receiver_phone"],
-            "receiver_address" => $_POST["receiver_address"],
-            "receiver_note" => $_POST["receiver_note"],
+        $payment_method = $_POST["payment_method"];
+
+        // Lưu thông tin vào session tạm (chưa insert DB)
+        $_SESSION["pending_order"] = [
+            "order" => [
+                "user_id" => $_SESSION["user"]["id"],
+                "payment_method" => $payment_method,
+                "receiver_name" => $_POST["receiver_name"],
+                "receiver_phone" => $_POST["receiver_phone"],
+                "receiver_address" => $_POST["receiver_address"],
+                "receiver_note" => $_POST["receiver_note"],
+            ],
+            "details" => [],
+            "total_amount" => 0
         ];
 
-        $order_details_list = [];
-
+        $total = 0;
         foreach ($_SESSION["cart_order"] as $cart_order) {
-            $order_details_list[] = [
+            $total += $cart_order["price"] * $cart_order["quantity"];
+            $_SESSION["pending_order"]["details"][] = [
                 "product_detail_id" => $cart_order["product_detail_id"],
                 "price" => $cart_order["price"],
                 "quantity" => $cart_order["quantity"],
             ];
         }
+        $_SESSION["pending_order"]["total_amount"] = $total;
 
-        $this->userModel->add_orders($order, $order_details_list);
+        if ($payment_method === "PayPal") {
+            // Call MoMo payment API (the specific MoMo sandbox or production API)
+
+            $this->initiate_momo_payment($total);
+            return;
+        }
+
+        // Nếu không dùng MOMO, tiến hành xử lý luôn
+        $this->userModel->add_orders(
+            $_SESSION["pending_order"]["order"],
+            $_SESSION["pending_order"]["details"]
+        );
+
+        // xóa sản phẩm trong giỏ hàng đã mua
+        foreach ($_SESSION["cart_order"] as $cart_order) {
+            $this->userModel->delete_cart_detail($cart_order["cart_detail_id"]);
+        }
 
         // Xoá các sản phẩm đã đặt khỏi session/cart nếu muốn
         unset($_SESSION["cart_order"]);
 
         echo "<script>
-                    alert('Đặt hàng thành công!');
-                    window.location.href = '" . BASE_URL . "?act=order_id';
-                  </script>";
+                     alert('Đặt hàng thành công!');
+                     window.location.href = '" . BASE_URL . "?act=order_id';
+                   </script>";
+    }
+
+    // Hàm gửi yêu cầu thanh toán
+    private function initiate_momo_payment($total)
+    {
+        $config = include(__DIR__ . '/../config/momo_config.php');
+
+        $endpoint = $config['endpoint'];
+        $partner_code = $config['partnerCode'];
+        $access_key = $config['accessKey'];
+        $secret_key = $config['secretKey'];
+
+        $order_id = uniqid("order_");
+        $request_id = uniqid("request_");
+        $amount = $total;
+        $order_info = "Thanh toán đơn hàng cho " . $_SESSION["pending_order"]["order"]["receiver_name"];
+        $redirect_url = $config['redirectUrl'];
+        $ipn_url = $config['ipnUrl'];
+        $extra_data = ""; // Có thể thêm dữ liệu như mã khách hàng...
+
+        $request_type = "captureWallet";
+
+        // Chuỗi tạo chữ ký
+        $raw_signature = "accessKey=$access_key&amount=$amount&extraData=$extra_data&ipnUrl=$ipn_url"
+            . "&orderId=$order_id&orderInfo=$order_info&partnerCode=$partner_code"
+            . "&redirectUrl=$redirect_url&requestId=$request_id&requestType=$request_type";
+
+        $signature = hash_hmac("sha256", $raw_signature, $secret_key);
+
+        // Dữ liệu gửi đi
+        $data = [
+            "partnerCode" => $partner_code,
+            "accessKey" => $access_key,
+            "requestId" => $request_id,
+            "amount" => $amount,
+            "orderId" => $order_id,
+            "orderInfo" => $order_info,
+            "redirectUrl" => $redirect_url,
+            "ipnUrl" => $ipn_url,
+            "extraData" => $extra_data,
+            "requestType" => $request_type,
+            "signature" => $signature,
+            "lang" => "vi"
+        ];
+
+        $ch = curl_init($endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ["Content-Type: application/json"]);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        $response_data = json_decode($response, true);
+
+        if (isset($response_data['payUrl'])) {
+            header("Location: " . $response_data['payUrl']);
+            exit;
+        } else {
+            echo '<pre>';
+            print_r($response_data);
+            echo '</pre>';
+        }
+    }
+
+
+
+    // Hàm xử lý phản hồi từ MoMo (khi người dùng quay lại)
+    public function handle_momo_response()
+    {
+        $config = include(__DIR__ . '/../config/momo_config.php');
+        $partner_code = $config['partnerCode'];
+        $access_key = $config['accessKey'];
+        $secret_key = $config['secretKey'];
+
+        // Lấy thông tin từ MoMo trả về
+        $request_id = $_GET['requestId'];
+        $order_id = $_GET['orderId'];
+        $amount = $_GET['amount'];
+        $status = $_GET['status'];  // Thực tế trạng thái sẽ có "success" hoặc "failed"
+        $signature = $_GET['signature'];
+
+        // Kiểm tra tính hợp lệ của chữ ký
+        $raw_signature = "partnerCode=" . $partner_code .
+            "&accessKey=" . $access_key .
+            "&requestId=" . $request_id .
+            "&orderId=" . $order_id .
+            "&amount=" . $amount .
+            "&status=" . $status;
+
+        $generated_signature = hash_hmac("sha256", $raw_signature, $secret_key);
+
+        if ($generated_signature === $signature) {
+            // Chữ ký hợp lệ, xử lý đơn hàng
+            if ($status === "success") {
+                // Thanh toán thành công
+                $this->userModel->add_orders(
+                    $_SESSION["pending_order"]["order"],
+                    $_SESSION["pending_order"]["details"]
+                );
+
+                unset($_SESSION["cart_order"]);
+                unset($_SESSION["pending_order"]);
+
+                // Thông báo thành công
+                echo "<script>
+            alert('Thanh toán thành công! Đơn hàng của bạn đã được xác nhận.');
+            window.location.href = '" . BASE_URL . "?act=order_success';
+            </script>";
+            } else {
+                // Thanh toán thất bại
+                echo "<script>
+            alert('Thanh toán không thành công, vui lòng thử lại.');
+            window.location.href = '" . BASE_URL . "'; 
+            </script>";
+            }
+        } else {
+            // Chữ ký không hợp lệ
+            echo "<script>
+        alert('Lỗi xác thực thanh toán!');
+        window.location.href = '" . BASE_URL . "'; 
+        </script>";
+        }
+    }
+
+    // Một trang đơn giản xác nhận đơn hàng đã được thanh toán thành công
+    public function order_success()
+    {
+        echo "<h1>Cảm ơn bạn đã mua hàng!</h1>";
+        echo "<p>Đơn hàng của bạn đã được xác nhận và sẽ được xử lý trong thời gian sớm nhất.</p>";
+        echo "<a href='" . BASE_URL . "'>Trở về trang chủ</a>";
     }
 
     public function order_id()

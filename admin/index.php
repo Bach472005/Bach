@@ -57,6 +57,7 @@ match ($act) {
     'get_user' => (new UserController()) ->get_user(),
     'delete_user' => (new UserController()) -> delete_user(),
     'update_user_status' => (new UserController()) -> update_user_status(),
+    'update_user_role' => (new UserController()) -> update_user_role(),
 
     // ORDER
     "get_order" => (new UserController()) -> get_order(),

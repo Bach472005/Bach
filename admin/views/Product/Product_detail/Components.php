@@ -44,7 +44,7 @@
                     <td class="text-center"><a class="btn btn-primary" href="<?php echo BASE_URL_ADMIN . "?act=get_product_detail_id&id=" . $product["product_detail_id"] ?>">Update</a></td>
                     <td class="text-center"><a class="btn btn-danger" href="javascript:void(0);" onclick="deleteProduct(<?php echo $product['product_detail_id'] ?>, <?php echo $id ?>, <?php echo $product['stock'] ?>)">Delete</a></td>
                     
-
+                    
                     </tr>
                     <?php } ?>
                 <?php $count++;?>

@@ -109,11 +109,16 @@
                     <div class="mb-3">
                         <label>Phương Thức Thanh Toán</label>
                         <select class="form-select" name="payment_method" required>
-                            <option value="COD">COD</option>
-                            <option value="Credit Card">Credit Card</option>
-                            <option value="Paypal">Paypal</option>
-                            <option value="Bank Transfer">Bank Transfer</option>
+                            <optgroup label="Thanh toán khi nhận hàng">
+                                <option value="COD">COD (thu tiền tận nơi)</option>
+                            </optgroup>
+                            <optgroup label="Thanh toán Online">
+                                <option value="PayPal">MOMO</option>
+                                <option value="Credit Card">Credit Card</option>
+                                <option value="Bank Transfer">Chuyển khoản ngân hàng</option>
+                            </optgroup>
                         </select>
+
                     </div>
                     <button type="submit" class="btn btn-primary w-100">Đặt Hàng</button>
                 </form>

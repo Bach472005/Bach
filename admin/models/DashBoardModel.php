@@ -31,7 +31,7 @@ class DashboardModel extends Connect
     {
         $sql = "SELECT COUNT(*) AS new_orders
                FROM orders
-               WHERE status = 'Delivered' AND DATE(created_at) = CURDATE()";
+               WHERE status = 'Pending' AND DATE(created_at) = CURDATE()";
         $data = $this->conn->prepare($sql);
         $data->execute();
         $result = $data->fetch();
@@ -56,7 +56,7 @@ class DashboardModel extends Connect
                 FROM order_details od
                 JOIN orders o ON od.order_id = o.id
                 WHERE o.status = 'Delivered' 
-                    AND o.created_at >= CURDATE() - INTERVAL 30 DAY
+                    AND o.created_at >= CURDATE() - INTERVAL 7 DAY
                 GROUP BY day_name
                 ORDER BY MIN(o.created_at)"; // ✅ Thêm MIN để sửa lỗi
 

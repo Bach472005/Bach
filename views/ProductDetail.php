@@ -332,7 +332,7 @@
                         <input type="hidden" name="price" value="${price}">
                         <div class="d-flex align-items-center gap-2">
                             <label for="quantity" class="mb-0">Số lượng:</label>
-                            <input type="number" name="quantity" value="1" min="1" max="${stock}" style="width: 80px;">
+                            <input type="number" name="quantity" value="1" min="1"  style="width: 80px;">
                         </div>
                         <button type="submit" class="btn btn-primary btn-lg mt-2">Thêm vào giỏ hàng</button>
                     </form>

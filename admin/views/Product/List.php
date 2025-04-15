@@ -33,7 +33,7 @@
                     <th class="text-center">Quantity</th>
                     <th class="text-center">Components</th>
                     <th class="text-center">Delete</th>
-                    <th class="text-center">Update</th>
+                    <!-- <th class="text-center">Update</th> -->
                    
                 </tr>
 
@@ -53,7 +53,7 @@
                     <td class="text-center"><?php echo $product["quantity"]; ?></td>
                     <td class="text-center"><a class="btn btn-primary" href="<?php echo BASE_URL_ADMIN . "?act=product_detail_view&id=" . $product["id"] ?>">Extend</a></td>
                     <td class="text-center"><a class="btn btn-primary" href="<?php echo BASE_URL_ADMIN . "?act=get_product_id&id=" . $product["id"] ?>">Update</a></td>
-                    <td class="text-center"><a class="btn btn-danger" href="javascript:void(0);" onclick="deleteProduct(<?php echo $product['id']; ?>)">Delete</a></td>
+                    <!-- <td class="text-center"><a class="btn btn-danger" href="javascript:void(0);" onclick="deleteProduct(<?php echo $product['id']; ?>)">Delete</a></td> -->
                 </tr>
                 <?php $count++; }?>
             </table>

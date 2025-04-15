@@ -17,6 +17,15 @@ class UserModel extends Connect
         $data->bindParam(":id", $id);
         $data->execute();
     }
+    public function get_order_status($order_id) {
+        $sql = "SELECT status FROM orders WHERE id = :order_id";
+
+        $data = $this->conn->prepare($sql);
+        $data->bindParam(":order_id", $order_id, PDO::PARAM_INT);
+        $data->execute();
+        return $data->fetchColumn();
+    }
+    
     public function update_user_status($id, $status)
     {
         $sql = "UPDATE `users` SET status = :status where id = :id";
@@ -25,6 +34,19 @@ class UserModel extends Connect
         $data->bindParam(":id", $id);
         $data->bindParam(":status", $status);
         $data->execute();
+    }
+    public function update_user_role($id, $role){
+        $sql = "UPDATE `users` SET role = :role where id = :id";
+        $data = $this->conn->prepare($sql);
+
+        $data->bindParam(":id", $id);
+        $data->bindParam(":role", $role);
+        if ($data->execute()) {
+            return true; // Return true if the update is successful
+        } else {
+            return false; // Return false if the execution fails
+        }
+        
     }
     public function get_order()
     {
@@ -36,6 +58,9 @@ class UserModel extends Connect
                         o.user_id,
                         o.id,
                         o.receiver_name AS customer_name,
+                        o.receiver_phone,
+                        o.receiver_address,
+                        o.receiver_note,
                         o.created_at AS order_date,
                         o.completed_at,
                         s.size_name,
@@ -50,7 +75,7 @@ class UserModel extends Connect
                     JOIN colors cl ON pd.color_id = cl.id
                     JOIN products p ON pd.product_id = p.id
                     LEFT JOIN images i ON i.product_id = p.id
-                    GROUP BY order_detail_id, od.quantity, od.price, o.status, o.user_id, o.id, o.receiver_name, o.created_at, o.completed_at, s.size_name, cl.color_name, cl.color_code, p.name";
+                    GROUP BY order_detail_id, od.quantity, od.price, o.status, o.user_id, o.id, o.receiver_name, o.receiver_phone, o.receiver_address, o.receiver_note, o.created_at, o.completed_at, s.size_name, cl.color_name, cl.color_code, p.name";
 
         $data = $this->conn->prepare($sql);
         $data->execute();

@@ -172,26 +172,61 @@
                                 </span>
                             </td>
                             <td>
-                                <?php if ($item["status"] == "Cancelled") {
-                                    ?>
-                                    <a href="<?= BASE_URL . "?act=delete_order&order_id=" . $item["order_id"] ?>"
-                                        class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Xóa đơn hàng">
-                                        🗑️
-                                    </a>
-
-                                    <?php
-                                } else {
+                                <!-- Hiển thị nút chi tiết đơn hàng cho tất cả trạng thái -->
+                                <button class="btn btn-sm btn-outline-primary view-details"
+                                    data-order-id="<?= $item['order_id'] ?>"
+                                    data-recipient="<?php echo htmlspecialchars($item['receiver_name']); ?>"
+                                    data-address="<?= $item['receiver_address'] ?>"
+                                    data-phone="<?= $item['receiver_phone'] ?>" data-status="<?= $item['status'] ?>"
+                                    data-bs-toggle="tooltip" title="Chi tiết đơn hàng">
+                                    🧐
+                                </button>
+                                <?php
+                                if ($item["status"] == "Pending" || $item["status"] == "Processing") {
+                                    // Hủy đơn hàng với trạng thái Pending hoặc Processing
                                     ?>
                                     <a href="<?= BASE_URL . "?act=cancelled_order&order_id=" . $item["order_id"] ?>"
                                         class="btn btn-sm btn-outline-warning" data-bs-toggle="tooltip" title="Hủy đơn hàng">
                                         ❌
                                     </a>
-
                                     <?php
-                                } ?>
+                                } elseif ($item["status"] == "Cancelled") {
+                                    // Xóa đơn hàng với trạng thái Cancelled hoặc Delivered
+                                    ?>
+                                    <a href="<?= BASE_URL . "?act=delete_order&order_id=" . $item["order_id"] ?>"
+                                        class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="Xóa đơn hàng">
+                                        🗑️
+                                    </a>
+                                    <?php
+                                }
+                                ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
+
+                    <!-- Modal for showing order details -->
+                    <div id="order-details-modal" class="modal fade" tabindex="-1"
+                        aria-labelledby="orderDetailsModalLabel" aria-hidden="false">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="orderDetailsModalLabel">Chi tiết đơn hàng</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Người nhận:</strong> <span id="recipient-name"></span></p>
+                                    <p><strong>Địa chỉ:</strong> <span id="recipient-address"></span></p>
+                                    <p><strong>Số điện thoại:</strong> <span id="recipient-phone"></span></p>
+                                    <p><strong>Trạng thái:</strong> <span id="order-status"></span></p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Đóng</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </tbody>
             </table>
         </div>
@@ -205,6 +240,27 @@
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
     tooltipTriggerList.forEach(el => new bootstrap.Tooltip(el));
 
+
+    // JavaScript to handle showing order details in a modal
+    document.querySelectorAll('.view-details').forEach(function (button) {
+        button.addEventListener('click', function () {
+            // Get the order details from the data attributes
+            var recipient = this.getAttribute('data-recipient');
+            var address = this.getAttribute('data-address');
+            var phone = this.getAttribute('data-phone');
+            var status = this.getAttribute('data-status');
+
+            // Set the modal content
+            document.getElementById('recipient-name').textContent = recipient;
+            document.getElementById('recipient-address').textContent = address;
+            document.getElementById('recipient-phone').textContent = phone;
+            document.getElementById('order-status').textContent = status;
+
+            // Show the modal
+            var myModal = new bootstrap.Modal(document.getElementById('order-details-modal'));
+            myModal.show();
+        });
+    });
 </script>
 
 </html>

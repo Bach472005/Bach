@@ -86,10 +86,7 @@
                               <a href="<?php echo BASE_URL ?>" class="item-link">Trang chủ</a>
                           </li>
                           <li class="menu-item">
-                              <a href="#" class="item-link">Nam</a>
-                          </li>
-                          <li class="menu-item">
-                              <a href="#" class="item-link">Nữ</a>
+                              <a href="<?php echo BASE_URL . '?act=category' ?>" class="item-link">Danh mục sản phẩm</a>
                           </li>
                           <li class="menu-item">
                               <a href="<?php echo BASE_URL . "news.html" ?>" class="item-link">Tin Tức</a>
@@ -126,7 +123,15 @@
                       <li class="nav-cart">
                           <a href="<?php echo BASE_URL . "?act=cart_view" ?>" class="nav-icon-item">
                               <i class="icon icon-cart"></i>
-                              <span class="count-box">0</span>
+                              <span class="count-box">
+                                <?php 
+                                    if(isset($_SESSION["user"]["cart"])){
+                                        echo $_SESSION["user"]["cart"];
+                                    } else{
+                                        echo "0";
+                                    }
+                                ?>
+                              </span>
                           </a>
                       </li>
                   </ul>

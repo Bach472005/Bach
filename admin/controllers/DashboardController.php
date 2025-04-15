@@ -6,6 +6,15 @@ class DashboardController
 
     public function __construct(){
         $this->dashboard = new DashboardModel;
+        session_start();
+
+        if (!isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 1) {
+            // Nếu không phải admin, chuyển hướng người dùng ra trang đăng nhập hoặc trang khác
+            echo "<script>
+                    alert('Bạn phải là admin mới vào trang này được!');
+                    window.location.href = '". BASE_URL ."';
+                </script>";
+        }
     }
 
     public function dashboard() {

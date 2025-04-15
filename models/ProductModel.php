@@ -1,7 +1,9 @@
 <?php
-    class ProductModel extends Connect{
-        public function get_product(){
-            $sql = "SELECT 
+class ProductModel extends Connect
+{
+    public function get_product()
+    {
+        $sql = "SELECT 
                         p.id, 
                         p.name, 
                         p.description, 
@@ -13,13 +15,14 @@
                     JOIN categories AS c ON c.id = p.category_id
                     LEFT JOIN images AS i ON p.id = i.product_id
                     GROUP BY p.id, c.category_name";
-            $data = $this->conn->prepare($sql);
-            $data->execute();
-            return $data->fetchAll(PDO::FETCH_ASSOC);
-        }
+        $data = $this->conn->prepare($sql);
+        $data->execute();
+        return $data->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-        public function get_product_detail($product_id){
-            $sql = "SELECT 
+    public function get_product_detail($product_id)
+    {
+        $sql = "SELECT 
                         pd.id AS product_detail_id,
                         pd.product_id,
                         pd.stock,
@@ -39,9 +42,23 @@
                     JOIN sizes s ON pd.size_id = s.id
                     JOIN products p ON pd.product_id = p.id
                     WHERE pd.product_id = :product_id";
-            $data = $this->conn->prepare($sql);
-            $data->bindParam(":product_id", $product_id);
-            $data->execute();
-            return $data->fetchAll(PDO::FETCH_ASSOC);
-        }
+        $data = $this->conn->prepare($sql);
+        $data->bindParam(":product_id", $product_id);
+        $data->execute();
+        return $data->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function get_quantity_product_cart($user_id)
+    {
+        $sql = "
+            SELECT COUNT(*) AS total_products
+            FROM cart c
+            JOIN cart_details cd ON c.id = cd.cart_id
+            WHERE c.user_id = :user_id
+        ";
+        $data = $this->conn->prepare($sql);
+        $data->bindParam(":user_id", $user_id);
+        $data->execute();
+        return $data->fetch(PDO::FETCH_ASSOC)['total_products'] ?? 0;
+    }
+
+}
