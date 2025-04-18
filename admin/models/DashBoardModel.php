@@ -63,7 +63,13 @@ class DashboardModel extends Connect
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
 
-        $revenue_data = [];
+        $revenue_data = ['Monday' => 0,
+        'Tuesday' => 0,
+        'Wednesday' => 0,
+        'Thursday' => 0,
+        'Friday' => 0,
+        'Saturday' => 0,
+        'Sunday' => 0];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $revenue_data[$row['day_name']] = $row['revenue'];
         }

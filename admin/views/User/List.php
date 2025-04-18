@@ -22,7 +22,7 @@
         <main class="col-md-8 p-4 main-content order-md-1" style="width: 75%; margin-left: 400px;">
             <h1>Danh sách User</h1>
 
-            <!-- Dropdown Filter -->
+           
             <div class="mb-3">
                 <label for="roleFilter">Lọc theo vai trò:</label>
                 <select id="roleFilter" class="form-select w-25">
@@ -79,11 +79,7 @@
                                 </a>
                             </td>
 
-                            <!-- <td class="text-center">
-                                <a class="btn btn-danger" href="javascript:void(0);"
-                                    onclick="deleteUser(<?= $user['id']; ?>)">Delete</a>
-                            </td> -->
-                            >
+                           
                         </tr>
                         <?php $count++;
                     } ?>

@@ -50,6 +50,21 @@ class UserModel extends Connect
 {
     public $conn;
 
+public function submit_contact()
+{
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $name = htmlspecialchars($_POST['name'], ENT_QUOTES, 'UTF-8');
+        $email = htmlspecialchars($_POST['email'], ENT_QUOTES, 'UTF-8');
+        $message = htmlspecialchars($_POST['message'], ENT_QUOTES, 'UTF-8');
+
+       
+
+        echo "<script>alert('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.'); window.location.href = '" . BASE_URL . "';</script>";
+    }else{
+        require_once './views/User/Contact.php';
+    }
+}
+
     public function get_user_email($email)
     {
         $sql = "SELECT * FROM users where email = :email";

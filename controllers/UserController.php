@@ -12,6 +12,15 @@ class UserController
         session_start();
     }
 
+
+    public function submit_contact()
+    {
+        $userModel = new UserModel();
+        $userModel->submit_contact();
+    }
+
+
+
     public function home_view()
     {
         $products = $this->productModel->get_product();
@@ -157,9 +166,7 @@ class UserController
                             alert('Bạn chưa đăng nhập nên không xem được giỏ hàng!');
                             window.location.href = '" . BASE_URL . "?act=login_view';
                         </script>";
-
         }
-
     }
     public function add_to_cart()
     {
@@ -501,7 +508,6 @@ class UserController
                     window.location.href = '" . BASE_URL . "?act=order_id';
                   </script>";
                 }
-
             } else {
                 if ($status == "Shipped" || $status == "Delivered") {
                     echo "<script>

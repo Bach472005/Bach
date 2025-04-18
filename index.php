@@ -44,7 +44,11 @@ match ($act) {
     'register' => (new UserController())->register(),
     'register_view' => (new UserController())->register_view(),
     'logout' => (new UserController())->log_out(),
+    
+   'submit_contact' => (new UserController())->submit_contact(),
 
+    //SEARCH
+    'search' => (new ProductController())->search_product(),
     // CART
     'cart_view' => (new UserController())->cart_view(),
     'add_to_cart' => (new UserController())->add_to_cart(),

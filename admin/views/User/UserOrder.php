@@ -47,11 +47,11 @@
                         <div class="col-md-3">
                             <select id="statusFilter" class="form-select">
                                 <option value="">Tất cả trạng thái</option>
-                                <option value="pending">Pending</option>
-                                <option value="processing">Processing</option>
-                                <option value="shipped">Shipped</option>
-                                <option value="delivered">Delivered</option>
-                                <option value="cancelled">Cancelled</option>
+                                <option value="pending">Đang chờ xử lí</option>
+                                <option value="processing">Đang xử lí</option>
+                                <option value="shipped">Đã giao</option>
+                                <option value="delivered">Đã nhận</option>
+                                <option value="cancelled">Đã huỷ</option>
                             </select>
                         </div>
                         <div class="col-md-3">
@@ -126,11 +126,11 @@
                         <p>
                             <strong>Trạng thái:</strong>
                             <select name="status" id="order-status" class="form-select">
-                                <option value="Pending">Pending</option>
-                                <option value="Processing">Processing</option>
-                                <option value="Shipped">Shipped</option>
-                                <option value="Delivered">Delivered</option>
-                                <option value="Cancelled">Cancelled</option>
+                                <option value="Pending">Đang chờ xử lí</option>
+                                <option value="Processing">Đang xử lí</option>
+                                <option value="Shipped">Đã giao hàng</option>
+                                <option value="Delivered">Đã giao thành công</option>
+                                <option value="Cancelled">Đã huỷ</option>
                             </select>
                         </p>
                     </div>

@@ -13,6 +13,21 @@
             session_start();
         }
 
+       
+        public function search_product()
+        {
+            if (isset($_GET["keyword"])) {
+                $keyword = htmlspecialchars($_GET["keyword"], ENT_QUOTES, 'UTF-8');
+                $products = $this->productModel->search_products($keyword);
+        
+            
+        
+                require './views/User/SearchResults.php';
+            } else {
+                echo "<script>alert('Vui lòng nhập từ khóa tìm kiếm!'); window.history.back();</script>";
+            }
+        }
+
         public function home_view(){
             $_SESSION["products"] = $this->productModel->get_product();
             if(isset($_SESSION["user"]["id"])){
