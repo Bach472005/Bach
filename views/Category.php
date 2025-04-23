@@ -81,6 +81,16 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             position: relative;
             overflow: hidden;
+            opacity: 1;
+            transform: scale(1);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .product-card.hidden {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+            position: absolute;
         }
 
         .product-card:hover {
@@ -197,6 +207,13 @@
                 <div class="filter-box sticky-top p-3 bg-white shadow-sm rounded" style="top: 100px;">
                     <h5 class="mb-3">Bộ Lọc</h5>
 
+                    <!-- Tên sản phẩm (lọc bằng nhập từ khoá) -->
+                    <div class="mb-3">
+                        <label for="nameInput" class="form-label">Tìm theo tên sản phẩm</label>
+                        <input type="text" id="nameInput" class="form-control" placeholder="Nhập tên sản phẩm...">
+                    </div>
+
+
                     <!-- Loại sản phẩm -->
                     <div class="mb-3">
                         <label for="categoryFilter" class="form-label">Loại sản phẩm</label>
@@ -265,15 +282,19 @@
         const categoryFilter = document.getElementById("categoryFilter");
         const priceFilter = document.getElementById("priceFilter");
         const productCards = document.querySelectorAll(".product-card");
+        const nameInput = document.getElementById("nameInput");
 
         function filterProducts() {
+            const keyword = nameInput.value.toLowerCase().trim();
             const selectedCategory = categoryFilter.value;
             const selectedPrice = priceFilter.value;
 
             productCards.forEach(card => {
+                const name = card.querySelector("h3").textContent.toLowerCase().trim();
                 const category = card.getAttribute("data-category");
                 const price = parseInt(card.getAttribute("data-price"));
 
+                let matchName = name.includes(keyword);
                 let matchCategory = selectedCategory === "all" || category === selectedCategory;
                 let matchPrice = true;
 
@@ -282,16 +303,18 @@
                     matchPrice = price >= min && price <= max;
                 }
 
-                if (matchCategory && matchPrice) {
-                    card.style.display = "block";
+                if (matchName && matchCategory && matchPrice) {
+                    card.classList.remove("hidden");
                 } else {
-                    card.style.display = "none";
+                    card.classList.add("hidden");
                 }
             });
         }
 
         categoryFilter.addEventListener("change", filterProducts);
         priceFilter.addEventListener("change", filterProducts);
+        nameInput.addEventListener("input", filterProducts);
+
     });
 
     document.getElementById("sortSelect").addEventListener("change", function () {

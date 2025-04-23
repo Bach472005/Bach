@@ -31,7 +31,6 @@
                     <option value="1">User</option>
                 </select>
             </div>
-
             <table class="table">
                 <thead>
                     <tr>
@@ -79,11 +78,7 @@
                                 </a>
                             </td>
 
-                            <!-- <td class="text-center">
-                                <a class="btn btn-danger" href="javascript:void(0);"
-                                    onclick="deleteUser(<?= $user['id']; ?>)">Delete</a>
-                            </td> -->
-                            >
+                            
                         </tr>
                         <?php $count++;
                     } ?>

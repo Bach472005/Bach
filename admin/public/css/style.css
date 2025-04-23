@@ -2,6 +2,14 @@
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    
+}
+:root{
+    --primary-color: #4e73df;
+    --success-color: #1cc88a;
+    --info-color: #36b9cc;
+    --warning-color: #f6c23e;
+    --danger-color: #e74a3b;
 }
 
 .topbar {

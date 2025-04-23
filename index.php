@@ -34,7 +34,7 @@ $act = $_GET['act'] ?? '/';
 match ($act) {
     // Trang chủ
     '/' => (new ProductController())->home_view(),
-
+    'contact' => (new HomeController()) -> contact_view(),
     // Product
     'pd' => (new ProductController())->product_detail_view(),
     'category' => (new ProductController())->product_view(),
@@ -44,6 +44,8 @@ match ($act) {
     'register' => (new UserController())->register(),
     'register_view' => (new UserController())->register_view(),
     'logout' => (new UserController())->log_out(),
+    'profile' => (new UserController()) ->profile(),
+    'change_password' => (new UserController()) -> change_password(),
 
     // CART
     'cart_view' => (new UserController())->cart_view(),

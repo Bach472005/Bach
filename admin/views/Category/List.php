@@ -60,7 +60,7 @@
                         <td class="text-center"><?php echo $count; ?></td>
                         <td class="text-center"><?php echo $category["category_name"]; ?></td>
                         <td class="text-center"><a class="btn btn-primary" href="<?php echo BASE_URL_ADMIN . "/index.php?act=get_category_id&id=" . $category["id"] ?>">Update</a></td>
-                        <td class="text-center"><a class="btn btn-danger" href="javascript:void(0);" onclick="deleteCategory(<?php echo $category['id']; ?>)">Delete</a></td>
+                        <!-- <td class="text-center"><a class="btn btn-danger" href="javascript:void(0);" onclick="deleteCategory(<?php echo $category['id']; ?>)">Delete</a></td> -->
                     </tr>
                     <?php $count++; }?>
                 </table>
@@ -86,7 +86,7 @@
                         <td class="text-center"><?php echo $count; ?></td>
                         <td class="text-center"><?php echo $size["size_name"]; ?></td>
                         <td class="text-center"><a class="btn btn-primary" href="<?php echo BASE_URL_ADMIN . "/index.php?act=get_size_id&id=" . $size["id"] ?>">Update</a></td>
-                        <td class="text-center"><a class="btn btn-danger" href="javascript:void(0);" onclick="deleteSize(<?php echo $size['id']; ?>)">Delete</a></td>
+                        <!-- <td class="text-center"><a class="btn btn-danger" href="javascript:void(0);" onclick="deleteSize(<?php echo $size['id']; ?>)">Delete</a></td> -->
                     </tr>
                     <?php $count++; }?>
                 </table>
@@ -112,7 +112,7 @@
                         <td class="text-center"><?php echo $count; ?></td>
                         <td class="text-center"><?php echo $color["color_name"]; ?></td>
                         <td class="text-center"><a class="btn btn-primary" href="<?php echo BASE_URL_ADMIN . "/index.php?act=get_color_id&id=" . $color["id"] ?>">Update</a></td>
-                        <td class="text-center"><a class="btn btn-danger" href="javascript:void(0);" onclick="deleteColor(<?php echo $color['id']; ?>)">Delete</a></td>
+                        <!-- <td class="text-center"><a class="btn btn-danger" href="javascript:void(0);" onclick="deleteColor(<?php echo $color['id']; ?>)">Delete</a></td> -->
                     </tr>
                     <?php $count++; }?>
                 </table>

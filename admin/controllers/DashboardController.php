@@ -23,7 +23,14 @@ class DashboardController
         $new_orders = $this->dashboard->newOrder();
         $out_of_stock = $this->dashboard->outOfStock();
         $week_revenue = $this->dashboard->weekRevenue();
-
+        
+        $labels = [];
+        $data = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $date = date('j/n', strtotime("-$i days"));
+            $labels[] = $date;
+            $data[] = $week_revenue[$date] ?? 0; // nếu không có thì 0
+        }
         require_once './views/DashBoard/DashBoard.php';
     }
 }

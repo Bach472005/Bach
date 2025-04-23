@@ -27,11 +27,13 @@
             </div>
 
             <div class="icon">
+                <a href="<?= BASE_URL ?>" class="btn btn-primary">
+                    <span>Trang chủ</span>
+                </a>
                 <span><i class="fas fa-bell"></i>Thông báo</span>
                 <span><i class="fas fa-envelope"></i>Tin nhắn</span>
                 <div class="dropdown">
-                    <span class="dropdown-toggle"><i class="fas fa-user"></i>Admin <i
-                            class="fas fa-caret-down"></i></span>
+                    <span class="dropdown-toggle"><i class="fas fa-user"></i>Admin <i></i></span>
                     <div class="dropdown-menu">
                         <?php if (isset($_SESSION["user"])) { ?>
                             <li><a href="<?php echo BASE_URL_ADMIN . '?act=profile' ?>">Hồ sơ</a></li>

@@ -31,7 +31,7 @@ class DashboardModel extends Connect
     {
         $sql = "SELECT COUNT(*) AS new_orders
                FROM orders
-               WHERE status = 'Pending' AND DATE(created_at) = CURDATE()";
+               WHERE DATE(created_at) = CURDATE()";
         $data = $this->conn->prepare($sql);
         $data->execute();
         $result = $data->fetch();
@@ -51,25 +51,28 @@ class DashboardModel extends Connect
 
     public function weekRevenue()
     {
-        $sql = "SELECT SUM(od.quantity * od.price) AS revenue,
-                       DAYNAME(o.created_at) AS day_name
-                FROM order_details od
-                JOIN orders o ON od.order_id = o.id
-                WHERE o.status = 'Delivered' 
-                    AND o.created_at >= CURDATE() - INTERVAL 7 DAY
-                GROUP BY day_name
-                ORDER BY MIN(o.created_at)"; // ✅ Thêm MIN để sửa lỗi
+        $sql = "SELECT DATE(o.created_at) AS order_date,
+                   SUM(od.quantity * od.price) AS revenue
+            FROM order_details od
+            JOIN orders o ON od.order_id = o.id
+            WHERE o.status = 'Delivered' 
+                AND o.created_at >= CURDATE() - INTERVAL 6 DAY
+            GROUP BY DATE(o.created_at)
+            ORDER BY DATE(o.created_at) ASC";
 
         $stmt = $this->conn->prepare($sql);
         $stmt->execute();
 
         $revenue_data = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $revenue_data[$row['day_name']] = $row['revenue'];
+            // Format ngày giống với labels: "d/M" (vd: "14/4")
+            $formattedDate = date('j/n', strtotime($row['order_date']));
+            $revenue_data[$formattedDate] = (float) $row['revenue'];
         }
 
         return $revenue_data;
     }
+
 
 
 }

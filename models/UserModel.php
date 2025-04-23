@@ -69,6 +69,15 @@ class UserModel extends Connect
         $data->execute();
     }
 
+    public function updatePassword($userId, $newHashedPassword)
+    {
+        $sql = "UPDATE users SET password = :password WHERE id = :id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            'password' => $newHashedPassword,
+            'id' => $userId
+        ]);
+    }
     public function get_cart($id)
     {
         $sql = "SELECT 
@@ -262,6 +271,24 @@ class UserModel extends Connect
             ]);
         }
     }
+    public function decrease_product_stock($product_detail_id, $quantity)
+    {
+        // 1. Lấy product_id từ product_detail
+        $stmt = $this->conn->prepare("SELECT product_id FROM product_detail WHERE id = ?");
+        $stmt->execute([$product_detail_id]);
+        $product_id = $stmt->fetchColumn();
+
+        if ($product_id) {
+            // 2. Giảm stock trong product_detail
+            $stmt = $this->conn->prepare("UPDATE product_detail SET stock = stock - ? WHERE id = ?");
+            $stmt->execute([$quantity, $product_detail_id]);
+
+            // 3. Giảm tổng quantity trong product
+            $stmt = $this->conn->prepare("UPDATE products SET quantity = quantity - ? WHERE id = ?");
+            $stmt->execute([$quantity, $product_id]);
+        }
+    }
+
 
     public function get_status_order_by_id($order_id)
     {
@@ -275,16 +302,41 @@ class UserModel extends Connect
     }
     public function cancelled_order($order_id)
     {
-        $sql = "UPDATE `orders` SET status = :status WHERE id = :id";
-        $stmt = $this->conn->prepare($sql);
+        try {
+            // 1. Lấy danh sách sản phẩm trong đơn hàng
+            $stmt = $this->conn->prepare("SELECT od.product_detail_id, od.quantity, pd.product_id
+                                      FROM order_details od
+                                      JOIN product_detail pd ON od.product_detail_id = pd.id
+                                      WHERE od.order_id = ?");
+            $stmt->execute([$order_id]);
+            $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $status = "Cancelled";
-        $stmt->bindParam(':status', $status);
-        $stmt->bindParam(':id', $order_id, PDO::PARAM_INT);
+            // 2. Cập nhật lại tồn kho cho từng sản phẩm và biến thể
+            foreach ($items as $item) {
+                $product_detail_id = $item['product_detail_id'];
+                $product_id = $item['product_id'];
+                $quantity = $item['quantity'];
 
-        $stmt->execute();
-        return $stmt->rowCount() > 0;
+                // Tăng lại stock cho biến thể
+                $stmt = $this->conn->prepare("UPDATE product_detail SET stock = stock + ? WHERE id = ?");
+                $stmt->execute([$quantity, $product_detail_id]);
+
+                // Tăng lại quantity cho sản phẩm chính
+                $stmt = $this->conn->prepare("UPDATE products SET quantity = quantity + ? WHERE id = ?");
+                $stmt->execute([$quantity, $product_id]);
+            }
+
+            // 3. Đổi trạng thái đơn hàng sang "Cancelled"
+            $stmt = $this->conn->prepare("UPDATE orders SET status = 'Cancelled' WHERE id = ?");
+            $stmt->execute([$order_id]);
+
+            return true;
+        } catch (PDOException $e) {
+            echo "Lỗi SQL: " . $e->getMessage();
+            return false;
+        }
     }
+
     public function delete_order($order_id)
     {
         $sql = "DELETE FROM `orders` where id = :id";

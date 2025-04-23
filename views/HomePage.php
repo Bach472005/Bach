@@ -175,26 +175,26 @@
             <h2>Danh Mục Sản Phẩm</h2>
             <ul class="category-list">
                 <li>
-                    <a href="#">
+                    <a href="<?php echo BASE_URL . "?act=category" ?>">
                         <img src="public/images/váy/anh11.jpg" alt="Váy" />
 
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="<?php echo BASE_URL . "?act=category" ?>">
                         <img src="public/images/áo phong/z6427049469666_5642f2b40d4f30e919ae96313d6b646b.jpg"
                             alt="Áo Phông" />
 
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="<?php echo BASE_URL . "?act=category" ?>">
                         <img src="public/images/quần/z6427058916226_812197864e55a002aa64164fa47ce000.jpg" alt="Quần" />
 
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="<?php echo BASE_URL . "?act=category" ?>">
                         <img src="public/images/ao khoac/z6427065417228_c4d35643131b5ce9de14e98e3e4b8886.jpg"
                             alt="Áo Khoác" />
 
